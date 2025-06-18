@@ -1,78 +1,166 @@
-import React, { useState } from 'react';
+/* eslint-disable jsx-a11y/label-has-associated-control */
+/* eslint-disable jsx-a11y/control-has-associated-label */
+import { useState } from 'react';
 import { Todo } from '../types/Todo';
-import { TodoEditForm } from './TodoEditForm';
-import { TodoLoader } from './TodoLoader';
-import { useTodoContext } from '../context/TodoContext';
+import cn from 'classnames';
+import { USER_ID } from '../api/todos';
 
-interface Props {
+const classNameLoader = 'modal-background has-background-white-ter';
+
+type Props = {
   todo: Todo;
-}
+  selectedTodo?: Todo;
+  setSelectedTodo: React.Dispatch<React.SetStateAction<Todo | undefined>>;
+  deleteChosenTodo: (currentTodoToDelete: Todo | null) => void;
+  focusedTodoRef: React.RefObject<HTMLInputElement>;
+  shouldDeleteCompleted: boolean;
+  updateChosenTodo: (todoSetToUpdate: Todo | null) => void;
+  shouldToggleAllCompleted: boolean;
+  currentTodos: Todo[];
+};
 
-export const TodoItem: React.FC<Props> = ({ todo }) => {
-  const [isEditing, setIsEditing] = useState(false);
-  const { handleDelete, handleToggle, handleUpdate, loadingTodos, tempTodo } =
-    useTodoContext();
-  const isLoading = loadingTodos.includes(todo.id) || todo === tempTodo;
+export const TodoItem: React.FC<Props> = ({
+  todo,
+  selectedTodo,
+  setSelectedTodo,
+  deleteChosenTodo,
+  focusedTodoRef,
+  shouldDeleteCompleted,
+  updateChosenTodo,
+  shouldToggleAllCompleted,
+  currentTodos,
+}) => {
+  const [inputValue, setInputValue] = useState(todo.title);
+  const [loader, setLoader] = useState(false);
+  const currentToggle = currentTodos.some(toDo => !toDo.completed);
 
-  const handleDoubleClick = () => {
-    setIsEditing(true);
+  const handleDelete = async (todoToDel: Todo) => {
+    setLoader(true);
+
+    await new Promise(resolve => setTimeout(resolve, 100));
+
+    await deleteChosenTodo(todoToDel);
+
+    setLoader(false);
   };
 
-  const handleTitleChange = async (newTitle: string) => {
-    if (newTitle.trim()) {
-      await handleUpdate(todo.id, newTitle);
-    } else {
-      await handleDelete(todo.id);
+  const handleUpdate = async (todoToUp: Todo) => {
+    setLoader(true);
+
+    await new Promise(resolve => setTimeout(resolve, 100));
+
+    await updateChosenTodo(todoToUp);
+
+    setLoader(false);
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setInputValue(e.target.value);
+  };
+
+  const handleBlurOrSubmit = () => {
+    if (inputValue !== todo.title) {
+      if (inputValue === '') {
+        handleDelete(todo);
+      } else {
+        handleUpdate({
+          id: todo.id,
+          title: inputValue.trim(),
+          userId: USER_ID,
+          completed: todo.completed,
+        });
+      }
     }
 
-    setIsEditing(false);
+    if (inputValue === todo.title) {
+      setSelectedTodo(undefined);
+    }
   };
 
-  const handleCancel = () => {
-    setIsEditing(false);
+  const handleKeyUp = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Escape') {
+      setInputValue(todo.title);
+      setSelectedTodo(undefined);
+    }
   };
 
   return (
-    <div data-cy="Todo" className={`todo ${todo.completed ? 'completed' : ''}`}>
+    <div
+      data-cy="Todo"
+      className={cn('todo', {
+        completed: todo.completed,
+      })}
+      key={todo.id}
+    >
       <label className="todo__status-label">
         <input
           data-cy="TodoStatus"
           type="checkbox"
           className="todo__status"
           checked={todo.completed}
-          onChange={() => handleToggle(todo.id)}
-          aria-label={`Mark ${todo.title} as ${todo.completed ? 'active' : 'completed'}`}
+          onChange={() =>
+            handleUpdate({
+              id: todo.id,
+              title: inputValue.trim(),
+              userId: USER_ID,
+              completed: !todo.completed,
+            })
+          }
         />
       </label>
 
-      {isEditing ? (
-        <TodoEditForm
-          title={todo.title}
-          onTitleChange={handleTitleChange}
-          onCancel={handleCancel}
-        />
-      ) : (
+      {todo !== selectedTodo ? (
         <>
           <span
             data-cy="TodoTitle"
             className="todo__title"
-            onDoubleClick={handleDoubleClick}
+            onDoubleClick={() => setSelectedTodo(todo)}
           >
             {todo.title}
           </span>
 
           <button
-            data-cy="TodoDelete"
             type="button"
             className="todo__remove"
-            onClick={() => handleDelete(todo.id)}
+            data-cy="TodoDelete"
+            onClick={() => handleDelete(todo)}
           >
             ×
           </button>
         </>
+      ) : (
+        <form
+          onSubmit={e => {
+            e.preventDefault();
+            handleBlurOrSubmit();
+          }}
+        >
+          <input
+            data-cy="TodoTitleField"
+            type="text"
+            className="todo__title-field"
+            placeholder="Empty todo will be deleted"
+            value={inputValue}
+            onChange={handleInputChange}
+            onBlur={handleBlurOrSubmit}
+            onKeyUp={handleKeyUp}
+            ref={focusedTodoRef}
+          />
+        </form>
       )}
 
-      <TodoLoader isLoading={isLoading} />
+      <div
+        data-cy="TodoLoader"
+        className={cn('modal overlay', {
+          'is-active':
+            loader ||
+            (shouldDeleteCompleted && todo.completed) ||
+            (shouldToggleAllCompleted && todo.completed !== currentToggle),
+        })}
+      >
+        <div className={classNameLoader} />
+        <div className="loader" />
+      </div>
     </div>
   );
 };
