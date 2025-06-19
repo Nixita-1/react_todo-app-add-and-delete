@@ -1,6 +1,7 @@
 import cn from 'classnames';
 import { useEffect, useState } from 'react';
 import { Todo } from '../types/Todo';
+import { USER_ID } from '../api/todos';
 
 type Props = {
   defaultInputRef: React.RefObject<HTMLInputElement>;
@@ -32,7 +33,7 @@ export const Header: React.FC<Props> = ({
     if (trimmedValue) {
       postNewTodo({
         id: Math.floor(1000000 + Math.random() * 9000000),
-        userId: 2400,
+        userId: USER_ID,
         title: trimmedValue,
         completed: false,
       });

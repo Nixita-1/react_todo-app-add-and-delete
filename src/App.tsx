@@ -98,7 +98,7 @@ export const App: React.FC = () => {
         setTodoBeingAdded(true);
         setTempTodo({
           id: 0,
-          userId: 2400,
+          userId: USER_ID,
           title: todoToPost.title,
           completed: todoToPost.completed,
         });
@@ -185,7 +185,7 @@ export const App: React.FC = () => {
             updateTodo({
               id: todo.id,
               title: todo.title,
-              userId: 2400,
+              userId: USER_ID,
               completed: completed,
             });
           }
