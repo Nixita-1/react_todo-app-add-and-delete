@@ -1,5 +1,5 @@
 import cn from 'classnames';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Todo } from '../types/Todo';
 import { USER_ID } from '../api/todos';
 
@@ -11,7 +11,7 @@ type Props = {
   todoBeingAdded: boolean;
   clearInput: boolean;
   setClearInput: React.Dispatch<React.SetStateAction<boolean>>;
-  setShouldToggleAllCompleted: React.Dispatch<React.SetStateAction<boolean>>;
+  handleToggleAll: () => void;
 };
 
 export const Header: React.FC<Props> = ({
@@ -22,11 +22,11 @@ export const Header: React.FC<Props> = ({
   todoBeingAdded,
   clearInput,
   setClearInput,
-  setShouldToggleAllCompleted,
+  handleToggleAll,
 }) => {
   const [inputValue, setInputValue] = useState('');
 
-  function handleSubmit(event: React.FormEvent) {
+  const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
     const trimmedValue = inputValue.trim();
 
@@ -40,14 +40,12 @@ export const Header: React.FC<Props> = ({
     } else {
       showError('Title should not be empty');
     }
-  }
+  };
 
-  useEffect(() => {
-    if (clearInput) {
-      setInputValue('');
-      setClearInput(false);
-    }
-  }, [clearInput, setClearInput]);
+  if (clearInput && inputValue !== '') {
+    setInputValue('');
+    setClearInput(false);
+  }
 
   return (
     <header className="todoapp__header">
@@ -58,11 +56,11 @@ export const Header: React.FC<Props> = ({
             active: !currentTodos.some(todo => !todo.completed),
           })}
           data-cy="ToggleAllButton"
-          onClick={() => setShouldToggleAllCompleted(true)}
+          onClick={handleToggleAll}
         />
       )}
 
-      <form onSubmit={event => handleSubmit(event)}>
+      <form onSubmit={handleSubmit}>
         <input
           data-cy="NewTodoField"
           type="text"

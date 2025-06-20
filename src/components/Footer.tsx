@@ -4,16 +4,16 @@ import { FilterType } from '../types/FilterType';
 
 type Props = {
   currentTodos: Todo[];
-  todosFilter: string;
+  todosFilter: FilterType;
   setTodosFilter: React.Dispatch<React.SetStateAction<FilterType>>;
-  setShouldDeleteCompleted: React.Dispatch<React.SetStateAction<boolean>>;
+  handleClearCompleted: () => void;
 };
 
 export const Footer: React.FC<Props> = ({
   currentTodos,
   todosFilter,
   setTodosFilter,
-  setShouldDeleteCompleted,
+  handleClearCompleted,
 }) => {
   return (
     <footer className="todoapp__footer" data-cy="Footer">
@@ -60,7 +60,7 @@ export const Footer: React.FC<Props> = ({
         type="button"
         className="todoapp__clear-completed"
         data-cy="ClearCompletedButton"
-        onClick={() => setShouldDeleteCompleted(true)}
+        onClick={handleClearCompleted}
         disabled={currentTodos.filter(todo => todo.completed).length === 0}
       >
         Clear completed
