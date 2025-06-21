@@ -1,15 +1,13 @@
 /* eslint-disable jsx-a11y/label-has-associated-control */
 /* eslint-disable jsx-a11y/control-has-associated-label */
 import { Todo } from '../types/Todo';
-import cn from 'classnames';
 import { TodoItem } from './TodoItem';
-
-const classNameLoader = 'modal-background has-background-white-ter';
+import { TempTodoItem } from './TempTodo';
 
 type Props = {
   filteredTodos: Todo[];
-  selectedTodo?: Todo;
-  setSelectedTodo: React.Dispatch<React.SetStateAction<Todo | undefined>>;
+  selectedTodo?: Todo | null;
+  setSelectedTodo: React.Dispatch<React.SetStateAction<Todo | null>>;
   deleteChosenTodo: (currentTodoToDelete: Todo | null) => void;
   focusedTodoRef: React.RefObject<HTMLInputElement>;
   shouldDeleteCompleted: boolean;
@@ -49,33 +47,8 @@ export const TodoList: React.FC<Props> = ({
               currentTodos={currentTodos}
             />
           ))}
-        </div>
-      )}
 
-      {tempTodo && (
-        <div
-          data-cy="Todo"
-          className={cn('todo', {
-            'todo completed': tempTodo.completed,
-          })}
-          key={tempTodo.id}
-        >
-          <label className="todo__status-label">
-            <input
-              data-cy="TodoStatus"
-              type="checkbox"
-              className="todo__status"
-            />
-          </label>
-
-          <span data-cy="TodoTitle" className="todo__title">
-            {tempTodo.title}
-          </span>
-
-          <div data-cy="TodoLoader" className="modal overlay is-active">
-            <div className={classNameLoader} />
-            <div className="loader" />
-          </div>
+          {tempTodo && <TempTodoItem tempTodo={tempTodo} />}
         </div>
       )}
     </section>

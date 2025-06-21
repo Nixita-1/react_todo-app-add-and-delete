@@ -9,8 +9,8 @@ const classNameLoader = 'modal-background has-background-white-ter';
 
 type Props = {
   todo: Todo;
-  selectedTodo?: Todo;
-  setSelectedTodo: React.Dispatch<React.SetStateAction<Todo | undefined>>;
+  selectedTodo?: Todo | null;
+  setSelectedTodo: React.Dispatch<React.SetStateAction<Todo | null>>;
   deleteChosenTodo: (currentTodoToDelete: Todo | null) => void;
   focusedTodoRef: React.RefObject<HTMLInputElement>;
   shouldDeleteCompleted: boolean;
@@ -60,7 +60,7 @@ export const TodoItem: React.FC<Props> = ({
 
   const handleBlurOrSubmit = () => {
     if (inputValue !== todo.title) {
-      if (inputValue === '') {
+      if (inputValue) {
         handleDelete(todo);
       } else {
         handleUpdate({
@@ -73,14 +73,14 @@ export const TodoItem: React.FC<Props> = ({
     }
 
     if (inputValue === todo.title) {
-      setSelectedTodo(undefined);
+      setSelectedTodo(null);
     }
   };
 
   const handleKeyUp = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Escape') {
       setInputValue(todo.title);
-      setSelectedTodo(undefined);
+      setSelectedTodo(null);
     }
   };
 
@@ -108,7 +108,6 @@ export const TodoItem: React.FC<Props> = ({
           }
         />
       </label>
-
       {todo !== selectedTodo ? (
         <>
           <span
@@ -158,7 +157,7 @@ export const TodoItem: React.FC<Props> = ({
             (shouldToggleAllCompleted && todo.completed !== currentToggle),
         })}
       >
-        <div className={classNameLoader} />
+        <div className={classNameLoader}></div>
         <div className="loader" />
       </div>
     </div>

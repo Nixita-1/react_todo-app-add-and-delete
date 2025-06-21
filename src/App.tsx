@@ -13,7 +13,7 @@ export const App: React.FC = () => {
   const [currentTodos, setCurrentTodos] = useState<Todo[]>([]);
   const [errorMessage, setErrorMessage] = useState<string>('');
   const [todosFilter, setTodosFilter] = useState<FilterType>(FilterType.All);
-  const [selectedTodo, setSelectedTodo] = useState<Todo | undefined>(undefined);
+  const [selectedTodo, setSelectedTodo] = useState<Todo | null>(null);
   const [todoBeingAdded, setTodoBeingAdded] = useState(false);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [clearInput, setClearInput] = useState(false);
@@ -28,9 +28,9 @@ export const App: React.FC = () => {
     }
   };
 
-  const showError = (msg: string) => {
-    if (msg) {
-      setErrorMessage(msg);
+  const showError = (message: string) => {
+    if (message) {
+      setErrorMessage(message);
       setTimeout(() => setErrorMessage(''), 3000);
     }
   };
@@ -74,7 +74,7 @@ export const App: React.FC = () => {
         .then(() => {
           setCurrentTodos(prev => prev.filter(t => t.id !== todoToDelete.id));
           if (selectedTodo && selectedTodo.id === todoToDelete.id) {
-            setSelectedTodo(undefined);
+            setSelectedTodo(null);
           }
         })
         .catch(() => showError('Unable to delete a todo'))
@@ -140,7 +140,7 @@ export const App: React.FC = () => {
             ),
           );
           if (selectedTodo && selectedTodo.id === todoToUpdate.id) {
-            setSelectedTodo(undefined);
+            setSelectedTodo(null);
           }
         })
         .catch(() => showError('Unable to update a todo'))
